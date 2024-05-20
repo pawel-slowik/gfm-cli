@@ -5,6 +5,7 @@ import os.path
 import json
 import urllib.parse
 import http.client
+import argparse
 from http import HTTPStatus
 from typing import Iterable, Tuple, Mapping, Type
 
@@ -66,6 +67,11 @@ def headers_encoding(headers: Iterable[Tuple[str, str]]) -> str:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Convert GitHub Flavored Markdown into HTML using GitHubs REST API.",
+        usage="%(prog)s < input.md > output.html",
+    )
+    parser.parse_args()
     html = gfm_to_html(sys.stdin.read())
     print(html)
 
