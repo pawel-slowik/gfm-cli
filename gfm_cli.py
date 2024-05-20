@@ -28,10 +28,7 @@ def api_request(method: str, url: str, data: str, expected_status: HTTPStatus) -
     encoding = headers_encoding(response.getheaders())
     body = response.read().decode(encoding)
     if response.status != expected_status:
-        raise RuntimeError(
-            "unexpected HTTP code: %d, response: %s"
-            % (response.status, body)
-        )
+        raise RuntimeError(f"unexpected HTTP code: {response.status}, response: {body}")
     return body
 
 
