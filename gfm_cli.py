@@ -4,10 +4,10 @@ import sys
 import os.path
 import json
 import urllib.parse
-import http.client
+import urllib.request
 import argparse
 from http import HTTPStatus
-from typing import Iterable, Tuple, Mapping, Type
+from typing import Iterable, Tuple
 
 
 def gfm_to_html(markdown: str) -> str:
@@ -24,36 +24,14 @@ def api_request(method: str, url: str, data: str, expected_status: HTTPStatus) -
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": os.path.basename(sys.argv[0]),
     }
-    response = http_request(method, url, headers, data)
-    encoding = headers_encoding(response.getheaders())
-    body = response.read().decode(encoding)
-    if response.status != expected_status:
-        raise RuntimeError(f"unexpected HTTP code: {response.status}, response: {body}")
+    request = urllib.request.Request(url, data.encode("ascii"), headers, method=method)
+    with urllib.request.urlopen(request) as response:
+        status = response.code
+        encoding = headers_encoding(response.getheaders())
+        body = response.read().decode(encoding)
+    if status != expected_status:
+        raise RuntimeError(f"unexpected HTTP code: {status}, response: {body}")
     return body
-
-
-def http_request(
-        method: str,
-        url: str,
-        headers: Mapping[str, str],
-        data: str
-    ) -> http.client.HTTPResponse:
-
-    def connection_class(scheme: str) -> Type[http.client.HTTPConnection]:
-        scheme_class_map = {
-            "http": http.client.HTTPConnection,
-            "https": http.client.HTTPSConnection,
-        }
-        return scheme_class_map[scheme.lower()]
-
-    def url_without_netloc(url: str) -> str:
-        split = urllib.parse.urlsplit(url)
-        return urllib.parse.urlunsplit(("", "", split.path, split.query, split.fragment))
-
-    parts = urllib.parse.urlparse(url)
-    connection = connection_class(parts.scheme)(parts.netloc)
-    connection.request(method, url_without_netloc(url), body=data, headers=headers)
-    return connection.getresponse()
 
 
 def headers_encoding(headers: Iterable[Tuple[str, str]]) -> str:
