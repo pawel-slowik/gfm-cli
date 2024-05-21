@@ -13,4 +13,4 @@ install any additional packages.
 
 ## Usage
 
-	./gfm_cli.py < input.md > output.html
+	./gfm.py < input.md > output.html

@@ -22,4 +22,4 @@ jobs:
     - name: Install test dependencies
       run: pip install -U -r requirements-test.txt
     - name: Lint with pylint
-      run: pylint gfm_cli.py
+      run: pylint gfm.py
